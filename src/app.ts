@@ -53,11 +53,42 @@ class ProjectInput {
     this.attach();
   }
 
+  // Get all data enterd by the user
+  private gatherUserInput(): [string, string, number] | void {
+    const enteredTitle = this.titleInputElement.value;
+    const enteredDescription = this.desctiptionInputElement.value;
+    const enteredPeople = this.peopleInputElement.value;
+
+    // Trivial validation
+    if (enteredTitle.trim().length === 0 ||
+        enteredDescription.trim().length === 0 ||
+        enteredPeople.trim().length === 0) {
+          alert('Invalid input please try again');
+          return;
+    } else {
+      return [enteredTitle, enteredDescription, +enteredPeople];
+    }
+  }
+
+  // Clear all inputs
+  private clearInputs() {
+    this.titleInputElement.value = '';
+    this.desctiptionInputElement.value = '';
+    this.peopleInputElement.value = '';
+  }
+
   // Handle form submission
   @Autobind
   private submitHandler(event: Event) {
     event.preventDefault();
-    console.log(this.titleInputElement.value);
+    const userInput = this.gatherUserInput();
+
+    // If array was returned
+    if (Array.isArray(userInput)) {
+      this.clearInputs();
+      const [title, description, people] = userInput;
+      console.log(title, description, people);
+    }
   }
 
   // Attach event listeners to the form inputs
