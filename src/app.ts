@@ -1,4 +1,25 @@
 /**
+ * Autobind decorator
+ */
+function Autobind(
+  _target: any,
+  _methodName: string,
+  descriptor: PropertyDescriptor
+) {
+  const originalMethod = descriptor.value;
+  const adjustedDescriptor: PropertyDescriptor = {
+    configurable: true,
+    get() {
+      // Bind original method to the object on which method was called
+      const boundMethod = originalMethod.bind(this);
+      return boundMethod;
+    }
+  };
+
+  return adjustedDescriptor;
+}
+
+/**
  * Deal with html template tags content
  */
 class ProjectInput {
@@ -33,6 +54,7 @@ class ProjectInput {
   }
 
   // Handle form submission
+  @Autobind
   private submitHandler(event: Event) {
     event.preventDefault();
     console.log(this.titleInputElement.value);
@@ -42,7 +64,7 @@ class ProjectInput {
   private configure() {
     // Bind submitHandler method here to the class 'this'
     // not the event target 'this'
-    this.element.addEventListener('submit', this.submitHandler.bind(this)); 
+    this.element.addEventListener('submit', this.submitHandler); 
   }
 
   // Attach template content to the node
