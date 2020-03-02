@@ -1,4 +1,37 @@
 /**
+ * Validation logic 
+ */
+interface Validatable {
+  value: string | number;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
+function validate(validatableInput: Validatable) {
+  let isValid = true;
+  if (validatableInput.required) {
+    isValid = isValid && validatableInput.value.toString().trim().length !== 0 ; 
+  }
+  if (validatableInput.minLength != null && typeof validatableInput.value === 'string') {
+    isValid = isValid && validatableInput.value.length >= validatableInput.minLength ; 
+  }  
+  if (validatableInput.maxLength != null && typeof validatableInput.value === 'string') {
+    isValid = isValid && validatableInput.value.length <= validatableInput.maxLength ; 
+  }
+  if (validatableInput.min != null && typeof validatableInput.value === 'number') {
+    isValid = isValid && validatableInput.value >= validatableInput.min;
+  }
+  if (validatableInput.max != null && typeof validatableInput.value === 'number') {
+    isValid = isValid && validatableInput.value <= validatableInput.max;
+  }
+
+  return isValid;
+}
+
+/**
  * Autobind decorator
  */
 function Autobind(
@@ -27,27 +60,38 @@ class ProjectInput {
   hostElement: HTMLDivElement;
   element: HTMLFormElement;
   // Form input fields
-  titleInputElement: HTMLInputElement; 
+  titleInputElement: HTMLInputElement;
   desctiptionInputElement: HTMLInputElement;
   peopleInputElement: HTMLInputElement;
 
   constructor() {
     // Use exclamation sign here to tell TS that element with an id 100% exists
     // Use type casting here to tell that it will be html template element
-    this.templateElement = document.getElementById('project-input')! as HTMLTemplateElement;
+    this.templateElement = document.getElementById(
+      "project-input"
+    )! as HTMLTemplateElement;
     // Where content of template renders
-    this.hostElement = document.getElementById('app')! as HTMLDivElement;
+    this.hostElement = document.getElementById("app")! as HTMLDivElement;
 
     // Render content of the template inside the host element
-    const importedNode = document.importNode(this.templateElement.content, true);
+    const importedNode = document.importNode(
+      this.templateElement.content,
+      true
+    );
     this.element = importedNode.firstElementChild as HTMLFormElement;
 
     // Setup form input elements
-    this.titleInputElement = this.element.querySelector('#title') as HTMLInputElement;
-    this.desctiptionInputElement = this.element.querySelector('#description') as HTMLInputElement;
-    this.peopleInputElement = this.element.querySelector('#people') as HTMLInputElement;
-     // Set id to the form to perform styling
-    this.element.id = 'user-input';
+    this.titleInputElement = this.element.querySelector(
+      "#title"
+    ) as HTMLInputElement;
+    this.desctiptionInputElement = this.element.querySelector(
+      "#description"
+    ) as HTMLInputElement;
+    this.peopleInputElement = this.element.querySelector(
+      "#people"
+    ) as HTMLInputElement;
+    // Set id to the form to perform styling
+    this.element.id = "user-input";
 
     this.configure();
     this.attach();
@@ -59,12 +103,31 @@ class ProjectInput {
     const enteredDescription = this.desctiptionInputElement.value;
     const enteredPeople = this.peopleInputElement.value;
 
+    // Construct validatable object
+    const titleValidatable: Validatable = {
+      value: enteredTitle,
+      required: true,
+    };
+    const descriptionValidatable: Validatable = {
+      value: enteredDescription,
+      required: true,
+      minLength: 5,
+    }; 
+    const peopleValidatable: Validatable = {
+      value: +enteredPeople,
+      required: true,
+      min: 1,
+      max: 5,
+    }; 
+
     // Trivial validation
-    if (enteredTitle.trim().length === 0 ||
-        enteredDescription.trim().length === 0 ||
-        enteredPeople.trim().length === 0) {
-          alert('Invalid input please try again');
-          return;
+    if (
+      !validate(titleValidatable) ||
+      !validate(descriptionValidatable) ||
+      !validate(peopleValidatable)
+    ) {
+      alert("Invalid input please try again");
+      return;
     } else {
       return [enteredTitle, enteredDescription, +enteredPeople];
     }
@@ -72,9 +135,9 @@ class ProjectInput {
 
   // Clear all inputs
   private clearInputs() {
-    this.titleInputElement.value = '';
-    this.desctiptionInputElement.value = '';
-    this.peopleInputElement.value = '';
+    this.titleInputElement.value = "";
+    this.desctiptionInputElement.value = "";
+    this.peopleInputElement.value = "";
   }
 
   // Handle form submission
@@ -95,12 +158,12 @@ class ProjectInput {
   private configure() {
     // Bind submitHandler method here to the class 'this'
     // not the event target 'this'
-    this.element.addEventListener('submit', this.submitHandler); 
+    this.element.addEventListener("submit", this.submitHandler);
   }
 
   // Attach template content to the node
   private attach() {
-    this.hostElement.insertAdjacentElement('afterbegin', this.element); 
+    this.hostElement.insertAdjacentElement("afterbegin", this.element);
   }
 }
 
