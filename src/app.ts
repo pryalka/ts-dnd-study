@@ -1,5 +1,5 @@
 /**
- * Validation logic 
+ * Validation logic
  */
 interface Validatable {
   value: string | number;
@@ -13,13 +13,13 @@ interface Validatable {
 function validate(validatableInput: Validatable) {
   let isValid = true;
   if (validatableInput.required) {
-    isValid = isValid && validatableInput.value.toString().trim().length !== 0 ; 
+    isValid = isValid && validatableInput.value.toString().trim().length !== 0;
   }
   if (validatableInput.minLength != null && typeof validatableInput.value === 'string') {
-    isValid = isValid && validatableInput.value.length >= validatableInput.minLength ; 
-  }  
+    isValid = isValid && validatableInput.value.length >= validatableInput.minLength;
+  }
   if (validatableInput.maxLength != null && typeof validatableInput.value === 'string') {
-    isValid = isValid && validatableInput.value.length <= validatableInput.maxLength ; 
+    isValid = isValid && validatableInput.value.length <= validatableInput.maxLength;
   }
   if (validatableInput.min != null && typeof validatableInput.value === 'number') {
     isValid = isValid && validatableInput.value >= validatableInput.min;
@@ -34,11 +34,7 @@ function validate(validatableInput: Validatable) {
 /**
  * Autobind decorator
  */
-function Autobind(
-  _target: any,
-  _methodName: string,
-  descriptor: PropertyDescriptor
-) {
+function Autobind(_target: any, _methodName: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
   const adjustedDescriptor: PropertyDescriptor = {
     configurable: true,
@@ -53,7 +49,38 @@ function Autobind(
 }
 
 /**
- * Deal with html template tags content
+ * Deal with lists
+ */
+class ProjectList {
+  templateElement: HTMLTemplateElement;
+  hostElement: HTMLDivElement;
+  element: HTMLElement;
+
+  constructor(private type: 'active' | 'finished') {
+    this.templateElement = document.getElementById('project-list')! as HTMLTemplateElement;
+    this.hostElement = document.getElementById('app')! as HTMLDivElement;
+
+    // Render content of the template inside the host element
+    const importedNode = document.importNode(this.templateElement.content, true);
+    this.element = importedNode.firstElementChild as HTMLElement;
+    this.element.id = `${type}-projects`;
+    this.attach();
+    this.renderContent();
+  }
+
+  private attach() {
+    this.hostElement.insertAdjacentElement('beforeend', this.element);
+  }
+
+  private renderContent() {
+    const listID = `${this.type}-projects-list`;
+    this.element.querySelector('ul')!.id = listID;
+    this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + ' PROJECTS';
+  }
+}
+
+/**
+ * Deal with form rendering submission and validating
  */
 class ProjectInput {
   templateElement: HTMLTemplateElement;
@@ -67,31 +94,20 @@ class ProjectInput {
   constructor() {
     // Use exclamation sign here to tell TS that element with an id 100% exists
     // Use type casting here to tell that it will be html template element
-    this.templateElement = document.getElementById(
-      "project-input"
-    )! as HTMLTemplateElement;
+    this.templateElement = document.getElementById('project-input')! as HTMLTemplateElement;
     // Where content of template renders
-    this.hostElement = document.getElementById("app")! as HTMLDivElement;
+    this.hostElement = document.getElementById('app')! as HTMLDivElement;
 
     // Render content of the template inside the host element
-    const importedNode = document.importNode(
-      this.templateElement.content,
-      true
-    );
+    const importedNode = document.importNode(this.templateElement.content, true);
     this.element = importedNode.firstElementChild as HTMLFormElement;
 
     // Setup form input elements
-    this.titleInputElement = this.element.querySelector(
-      "#title"
-    ) as HTMLInputElement;
-    this.desctiptionInputElement = this.element.querySelector(
-      "#description"
-    ) as HTMLInputElement;
-    this.peopleInputElement = this.element.querySelector(
-      "#people"
-    ) as HTMLInputElement;
+    this.titleInputElement = this.element.querySelector('#title') as HTMLInputElement;
+    this.desctiptionInputElement = this.element.querySelector('#description') as HTMLInputElement;
+    this.peopleInputElement = this.element.querySelector('#people') as HTMLInputElement;
     // Set id to the form to perform styling
-    this.element.id = "user-input";
+    this.element.id = 'user-input';
 
     this.configure();
     this.attach();
@@ -106,27 +122,23 @@ class ProjectInput {
     // Construct validatable object
     const titleValidatable: Validatable = {
       value: enteredTitle,
-      required: true,
+      required: true
     };
     const descriptionValidatable: Validatable = {
       value: enteredDescription,
       required: true,
-      minLength: 5,
-    }; 
+      minLength: 5
+    };
     const peopleValidatable: Validatable = {
       value: +enteredPeople,
       required: true,
       min: 1,
-      max: 5,
-    }; 
+      max: 5
+    };
 
     // Trivial validation
-    if (
-      !validate(titleValidatable) ||
-      !validate(descriptionValidatable) ||
-      !validate(peopleValidatable)
-    ) {
-      alert("Invalid input please try again");
+    if (!validate(titleValidatable) || !validate(descriptionValidatable) || !validate(peopleValidatable)) {
+      alert('Invalid input please try again');
       return;
     } else {
       return [enteredTitle, enteredDescription, +enteredPeople];
@@ -135,9 +147,9 @@ class ProjectInput {
 
   // Clear all inputs
   private clearInputs() {
-    this.titleInputElement.value = "";
-    this.desctiptionInputElement.value = "";
-    this.peopleInputElement.value = "";
+    this.titleInputElement.value = '';
+    this.desctiptionInputElement.value = '';
+    this.peopleInputElement.value = '';
   }
 
   // Handle form submission
@@ -158,13 +170,15 @@ class ProjectInput {
   private configure() {
     // Bind submitHandler method here to the class 'this'
     // not the event target 'this'
-    this.element.addEventListener("submit", this.submitHandler);
+    this.element.addEventListener('submit', this.submitHandler);
   }
 
   // Attach template content to the node
   private attach() {
-    this.hostElement.insertAdjacentElement("afterbegin", this.element);
+    this.hostElement.insertAdjacentElement('afterbegin', this.element);
   }
 }
 
 const projectInput = new ProjectInput();
+const activeProjectsList = new ProjectList('active');
+const finishedProjectsList = new ProjectList('finished');
