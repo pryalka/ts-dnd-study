@@ -134,8 +134,16 @@ class ProjectList {
 
     // Add listener function
     projectState.addListener((projects: Project[]) => {
+      // Filter projects
+      const relevantProjects = projects.filter(project => {
+        if (this.type === 'active') {
+          return project.status === ProjectStatus.ACTIVE;
+        }
+        return project.status === ProjectStatus.FINISHED;
+      });
+
       // Update projects according to actual state changes
-      this.assignedProjects = projects;
+      this.assignedProjects = relevantProjects;
       this.renderProjects();
     });
 
@@ -156,6 +164,8 @@ class ProjectList {
   // Render projects in lists
   private renderProjects() {
     const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
+    // Fix projects duplication bug clear all existing 'li' inside 'ul' and add all projects again
+    listEl.innerHTML = '';
     for (const prjItem of this.assignedProjects) {
       const listItem = document.createElement('li');
       listItem.textContent = prjItem.title;
