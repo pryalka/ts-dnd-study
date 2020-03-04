@@ -1,10 +1,36 @@
 /**
+ * Project status enum
+ */
+enum ProjectStatus {
+  ACTIVE,
+  FINISHED
+}
+
+/**
+ * Poject class
+ */
+class Project {
+  constructor(
+    public id: string,
+    public title: string,
+    public description: string,
+    public people: number,
+    public status: ProjectStatus
+  ) {}
+}
+
+/**
+ * Listener custom type
+ */
+type Listener = (items: Project[]) => void;
+
+/**
  * State management
  */
 class ProjectState {
-  private projects: any[] = [];
+  private projects: Project[] = [];
   private static instance: ProjectState;
-  private listeners: any[] = [];
+  private listeners: Listener[] = [];
 
   private constructor() {}
 
@@ -18,12 +44,7 @@ class ProjectState {
   }
 
   addProject(title: string, description: string, people: number) {
-    const newProject = {
-      id: Math.random().toString(),
-      title,
-      description,
-      people
-    };
+    const newProject = new Project(Math.random().toString(), title, description, people, ProjectStatus.ACTIVE);
 
     this.projects.push(newProject);
 
@@ -34,7 +55,7 @@ class ProjectState {
     }
   }
 
-  addListener(listenerFn: Function) {
+  addListener(listenerFn: Listener) {
     this.listeners.push(listenerFn);
   }
 }
@@ -99,7 +120,7 @@ class ProjectList {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
   element: HTMLElement;
-  assignedProjects: any[];
+  assignedProjects: Project[];
 
   constructor(private type: 'active' | 'finished') {
     this.templateElement = document.getElementById('project-list')! as HTMLTemplateElement;
@@ -112,7 +133,7 @@ class ProjectList {
     this.element.id = `${type}-projects`;
 
     // Add listener function
-    projectState.addListener((projects: any[]) => {
+    projectState.addListener((projects: Project[]) => {
       // Update projects according to actual state changes
       this.assignedProjects = projects;
       this.renderProjects();
