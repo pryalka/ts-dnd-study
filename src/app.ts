@@ -69,6 +69,14 @@ class ProjectState extends State<Project> {
     return this.instance;
   }
 
+  private updateListeners() {
+    // Call all listeners functions
+    for (const listenerFn of this.listeners) {
+      // Return new copy of state
+      listenerFn(this.projects.slice());
+    }
+  }
+
   addProject(title: string, description: string, people: number) {
     const newProject = new Project(
       Math.random().toString(),
@@ -79,11 +87,15 @@ class ProjectState extends State<Project> {
     );
 
     this.projects.push(newProject);
+    this.updateListeners();
+  }
 
-    // Call all listeners functions
-    for (const listenerFn of this.listeners) {
-      // Return new copy of state
-      listenerFn(this.projects.slice());
+  // Handle move project from one list to another
+  moveProject(projectId: string, newStatus: ProjectStatus) {
+    const project = this.projects.find(project => project.id === projectId);
+    if (project && project.status !== newStatus) {
+      project.status = newStatus;
+      this.updateListeners();
     }
   }
 }
@@ -211,7 +223,7 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements 
   }
 
   dragEndHandler(_event: DragEvent) {
-    console.log('Drag end event');
+    // console.log('Drag end event');
   }
 
   configure() {
@@ -249,8 +261,17 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> implements Drag
     }
   }
 
+  @Autobind
   dropHandler(event: DragEvent) {
-    console.log(event.dataTransfer!.getData('text/plain'));
+    const projectId = event.dataTransfer!.getData('text/plain');
+    // Update projects state
+    projectState.moveProject(
+      projectId,
+      this.type === 'active' ? ProjectStatus.ACTIVE : ProjectStatus.FINISHED
+    );
+
+    const listEl = this.element.querySelector('ul')!;
+    listEl.classList.remove('droppable');
   }
 
   @Autobind
