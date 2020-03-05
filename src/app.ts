@@ -204,7 +204,10 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements 
 
   @Autobind
   dragStartHandler(event: DragEvent) {
-    console.log(event);
+    // We can attach data to the dragging thing
+    event.dataTransfer!.setData('text/plain', this.project.id);
+    // Specify cursor look
+    event.dataTransfer!.effectAllowed = 'move';
   }
 
   dragEndHandler(_event: DragEvent) {
@@ -237,12 +240,18 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> implements Drag
   }
 
   @Autobind
-  dragOverHandler(_event: DragEvent) {
-    const listEl = this.element.querySelector('ul')!;
-    listEl.classList.add('droppable');
+  dragOverHandler(event: DragEvent) {
+    // Check if we able to drag and drop by dragging thing type
+    if (event.dataTransfer?.types[0] === 'text/plain') {
+      event.preventDefault();
+      const listEl = this.element.querySelector('ul')!;
+      listEl.classList.add('droppable');
+    }
   }
 
-  dropHandler(_event: DragEvent) {}
+  dropHandler(event: DragEvent) {
+    console.log(event.dataTransfer!.getData('text/plain'));
+  }
 
   @Autobind
   dragLeaveHandler(_event: DragEvent) {
