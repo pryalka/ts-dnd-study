@@ -1,4 +1,7 @@
 /// <reference path="./baseComponent.ts" />
+/// <reference path="../decorators/autobind.ts" />
+/// <reference path="../utils/validation.ts" />
+/// <reference path="../state/projectState.ts" />
 
 namespace App {
   /**

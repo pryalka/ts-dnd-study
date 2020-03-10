@@ -1,4 +1,7 @@
 /// <reference path="./baseComponent.ts" />
+/// <reference path="../decorators/autobind.ts" />
+/// <reference path="../models/dragDrop.ts" />
+/// <reference path="../models/project.ts" />
 
 namespace App {
   /**
