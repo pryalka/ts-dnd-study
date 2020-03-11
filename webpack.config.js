@@ -2,13 +2,17 @@ const path = require('path');
 
 // Webpack uses node.js exports system
 module.exports = {
+  // This is the development mode config file
+  mode: 'development',
   // Entry point file where webpack starts it's job
   entry: './src/app.ts',
   // Outout file where webpack results will be presented
   output: {
     filename: 'bundle.js',
     // Webpack uses absilute file path for output file
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    // Specify the public folder name
+    publicPath: 'dist'
   },
   // Handle sourcemaps
   devtool: 'inline-source-map',
