@@ -1,7 +1,7 @@
-import { projectState } from '../state/projectState.js';
-import { Component } from './baseComponent.js';
-import { Validatable, validate } from '../utils/validation.js';
-import { Autobind } from '../decorators/autobind.js';
+import { projectState } from '../state/projectState';
+import { Component } from './baseComponent';
+import { Validatable, validate } from '../utils/validation';
+import { Autobind } from '../decorators/autobind';
 
 /**
  * Deal with form rendering submission and validating
